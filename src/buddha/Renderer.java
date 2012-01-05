@@ -16,7 +16,7 @@ public interface Renderer {
      * @param y
      * @param value 
      */
-    void setPoint(int x,int y, float value);
+    void setPoint(int x,int y, double value);
     
     /**
      * adds a value to a specific point
@@ -24,7 +24,7 @@ public interface Renderer {
      * @param y
      * @param value
      */
-    void addToPoint(int x,int y, float value);
+    void addToPoint(int x,int y, double value);
     
     long getNumDataRecvd();
     

@@ -24,11 +24,11 @@ public class GLRenderer implements Renderer {
     
     long numPoints;
     
-    float[][] data;
-    float maxValue;
+    double[][] data;
+    double maxValue;
     
     @Override
-    public void setPoint(int x, int y, float value) {
+    public void setPoint(int x, int y, double value) {
         synchronized(dataSync) {
             data[x][y]=value;
             numPoints++;
@@ -36,7 +36,7 @@ public class GLRenderer implements Renderer {
     }
     
     @Override
-    public void addToPoint(int x, int y, float value) {
+    public void addToPoint(int x, int y, double value) {
         synchronized(dataSync) {
             data[x][y]+=value;
             numPoints++;
@@ -72,14 +72,14 @@ public class GLRenderer implements Renderer {
         
         glTranslatef(0.375f,0.375f,0f); //keep the pixels in the middle
         
-        float ramp;
+        double ramp;
         glBegin(GL_POINTS);
         synchronized(dataSync) {
             for(int ix=0;ix<width;ix++) {
                 for(int iy=0;iy<height;iy++) {
                     ramp=data[ix][iy] / maxValue / 1f;
                     if(ramp>1f) ramp=1f;
-                    glColor4f(fgcolor[0]*ramp, fgcolor[1]*ramp,fgcolor[2]*ramp, fgcolor[3]);
+                    glColor4d(fgcolor[0]*ramp, fgcolor[1]*ramp,fgcolor[2]*ramp, fgcolor[3]);
                     //glVertex3f(ix,iy,-ramp); //-ramp for later awesome mountains
                     glVertex2f(ix,iy);
                 }
@@ -102,7 +102,7 @@ public class GLRenderer implements Renderer {
         this.bgcolor=bgcolor;
         this.fgcolor=fgcolor;
         
-        data= new float[width][height];
+        data= new double[width][height];
         
         
         //start thread that checks for keys etc.
@@ -130,8 +130,8 @@ public class GLRenderer implements Renderer {
     
     private void findMaxValue() {
         maxValue=0;
-        for(float[] dx: data) {
-            for(float dxy:dx) {
+        for(double[] dx: data) {
+            for(double dxy:dx) {
                 if(dxy>maxValue) {
                     maxValue=dxy;
                 }

@@ -10,10 +10,10 @@ package buddha;
  */
 public class Buddha {
 
-    static int sizex=800;
-    static int sizey=800;
+    static int sizex=2048;
+    static int sizey=2048;
     
-    static int bailout=50;
+    static int bailout=500;
     static int numToRun=2000;
     
     static Renderer renderer;
@@ -25,7 +25,7 @@ public class Buddha {
         setLwjglPath();
         
         
-        renderer = new GLRenderer();
+        renderer = new PNGRenderer();
         float[] bgcolor= {0f,0f,0f,0f};
         float[] fgcolor= {1f,1f,1f,1f};
         
@@ -33,7 +33,7 @@ public class Buddha {
         
         
         for(int i=0;i<4;i++) {
-            new Thread() {
+            Thread t= new Thread() {
                 @Override public void run() {
                     Fractal f= new Buddhabrot();
                     f.init(sizex, sizey, renderer);
@@ -41,12 +41,14 @@ public class Buddha {
                         f.generateData(numToRun, bailout);
                     }
                 }
-            }.start();
+            };
+            t.setPriority(Thread.MIN_PRIORITY);
+            t.start();
         }
         
         while(true) {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(60000);
             } catch (InterruptedException ex) {}
             
             System.out.println("gemerated "+renderer.getNumDataRecvd()+" exposures");

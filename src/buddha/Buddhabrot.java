@@ -15,8 +15,10 @@ public class Buddhabrot implements Fractal{
     int width;
     int height;
     Renderer renderer;
-        
-    Random r= new Random();
+    
+    int minIterations=50;
+    
+    Random r= new Random((long) (Math.random()*300000));
     
     @Override
     public void init(int sizex, int sizey, Renderer renderer) {
@@ -28,12 +30,12 @@ public class Buddhabrot implements Fractal{
     @Override
     public void generateData(int numPoints, int bailout) {
         
-        float x, y;
+        double x, y;
         // iterate through some plots
         for (int n = 0; n < numPoints; n++) {
             // Choose a random point in same range
-            x = r.nextFloat()*3f -2f;  // range -2.0, 1.0
-            y = r.nextFloat()*3f -1.5f; //range -1.5, 1.5
+            x = r.nextDouble()*3f -2f;  // range -2.0, 1.0
+            y = r.nextDouble()*3f -1.5f; //range -1.5, 1.5
 
             iterate(x, y,bailout);
         }
@@ -41,10 +43,10 @@ public class Buddhabrot implements Fractal{
     }
     
     
-    void iterate(float x0, float y0, int bailout) {
-        float x = 0;
-        float y = 0;
-        float xnew, ynew;
+    void iterate(double x0, double y0, int bailout) {
+        double x = 0;
+        double y = 0;
+        double xnew, ynew;
         int ix, iy;
         boolean drawIt = false;
 
@@ -72,7 +74,7 @@ public class Buddhabrot implements Fractal{
                     // escapes
                     drawIt = true;
                 }
-                if (drawIt && (i > 3)) {
+                if (drawIt && (i > minIterations)) {
                     ix = (int) (width * (xnew + 2.0f) / 3.0f);
                     iy = (int) (height * (ynew + 1.5f) / 3.0f);
                     if (ix > 0 && iy > 0 && ix < width && iy < height) {
