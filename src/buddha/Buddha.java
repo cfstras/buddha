@@ -13,8 +13,8 @@ public class Buddha {
     static int sizex=8192;
     static int sizey=8192;
     
-    static int bailout=100000;
-    static int minIterations=3;
+    static int bailout=4;
+    static int minIterations=1;
     static int numToRun=2000;
     
     static boolean threadsRunning;
