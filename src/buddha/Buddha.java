@@ -13,8 +13,8 @@ public class Buddha {
     static int sizex=8192;
     static int sizey=8192;
     
-    static int bailout=4;
-    static int minIterations=1;
+    static int maxIterations=200;
+    static int minIterations=3;
     static int numToRun=2000;
     
     static boolean threadsRunning;
@@ -27,7 +27,6 @@ public class Buddha {
      */
     public static void main(String[] args) {
         setLwjglPath();
-        
         renderer = new PNGRenderer();
         float[] bgcolor= {0f,0f,0f,0f};
         float[] fgcolor= {1f,1f,1f,1f};
@@ -35,19 +34,23 @@ public class Buddha {
         renderer.init(bgcolor, fgcolor, sizex, sizey);
         
         threads = new RenderThread[4];
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException ex) {}
         
+        renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    not started     ");
         
         int i=0;
         while(true) {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException ex) {}
             i++;
             
             if(threadsRunning) {
-                renderer.updateInfo("buddha-"+Buddha.bailout+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    running       ");
+                renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    running       ");
                 System.out.println("generated "+renderer.getNumDataRecvd()+" exposures");
-                if(i%150==0) // all 5 minutes
+                if(i%600==0) // every 10 minutes
                     renderer.render();
             }
         }    
@@ -57,7 +60,7 @@ public class Buddha {
         if(threadsRunning) {
             threadsRunning=false;
             guiThread=Thread.currentThread();
-            renderer.updateInfo("buddha-"+Buddha.bailout+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    stopping       ");
+            renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    stopping       ");
             for(int i=0;i<threads.length;i++) {
                 threads[i].run=false;
                 threads[i].interrupt();
@@ -68,7 +71,7 @@ public class Buddha {
                 } catch (InterruptedException ex) {}
             }
         }
-        renderer.updateInfo("buddha-"+Buddha.bailout+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    stopped        ");
+        renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    stopped        ");
     }
     
     static void restartThreads() {
@@ -96,7 +99,7 @@ public class Buddha {
             Fractal f = new Buddhabrot();
             f.init(sizex, sizey, renderer);
             while (run) {
-                f.generateData(minIterations, numToRun, bailout);
+                f.generateData(minIterations, numToRun, maxIterations);
             }
             try {
                     Buddha.guiThread.join();
