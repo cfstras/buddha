@@ -144,6 +144,11 @@ public class GLRenderer implements Renderer {
         return numPoints;
     }
 
+    @Override
+    public void updateInfo(String string) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     
     
     private class Renderer extends Thread {

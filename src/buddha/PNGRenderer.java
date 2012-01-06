@@ -4,17 +4,22 @@
  */
 package buddha;
 
+import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Label;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
 
 /**
  *
@@ -69,6 +74,7 @@ public class PNGRenderer implements Renderer {
     
     private void render1() {
         System.out.println("writing image");
+        l.setText("buddha-"+Buddha.bailout+"-"+Buddha.minIterations+"-"+numPoints/1000000+"M  writing          ");
         findMaxValue();
         BufferedImage img = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB );
         Graphics2D g = img.createGraphics();
@@ -95,13 +101,14 @@ public class PNGRenderer implements Renderer {
         }
         img.flush();
         g.dispose();
-        File output=new File("buddha"+numPoints+".png");
+        File output=new File("buddha-"+Buddha.bailout+"-"+Buddha.minIterations+"-"+numPoints/1000000+"M.png");
         try {
             ImageIO.write(img, "png", output);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
         System.out.println("written image.");
+        l.setText("buddha-"+Buddha.bailout+"-"+Buddha.minIterations+"-"+numPoints/1000000+"M    written     ");
     }
     
 
@@ -111,17 +118,91 @@ public class PNGRenderer implements Renderer {
         height=sizey;
         this.bgcolor=bgcolor;
         this.fgcolor=fgcolor;
-        data= new double[width][height];
+        reInit();
         
         //start thread that checks for keys etc.
         renderer = new RenderThread();
         renderer.start();
     }
     
+    private void reInit() {
+        data= null;
+        System.gc();
+        data=new double[width][height];
+        numPoints=0;
+    }
+    
+    Label l;
     public void awtInit() {
         f=new Frame("Butterbrot");
-        f.pack();
+        l=new Label("buddha-"+Buddha.bailout+"-"+Buddha.minIterations+"-"+numPoints/1000000+"M       not started        ");
+        f.add(l);
+        
+        f.setLayout(new BoxLayout(f, BoxLayout.Y_AXIS));
+        Button b= new Button("Start Over (delete data)");
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reInit();
+                Buddha.restartThreads();
+            }
+        });
+        f.add(b);
+        
+        b= new Button("Stop Threads");
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Buddha.stopThreads();
+            }
+        });
+        f.add(b);
+        
+        b= new Button("X2 bailout (stop)");
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Buddha.stopThreads();
+                Buddha.bailout*=2;
+                Buddha.stopThreads(); // again just to update info
+            }
+        });
+        f.add(b);
+        
+        b= new Button("/2 bailout (stop)");
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Buddha.stopThreads();
+                Buddha.bailout/=2;
+                Buddha.stopThreads();
+            }
+        });
+        f.add(b);
+        
+        b= new Button("X2 minIterations (stop)");
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Buddha.stopThreads();
+                Buddha.minIterations*=2;
+                Buddha.stopThreads();
+            }
+        });
+        f.add(b);
+        b= new Button("/2 minIterations (stop)");
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Buddha.stopThreads();
+                Buddha.minIterations/=2;
+                Buddha.stopThreads();
+            }
+        });
+        f.add(b);
+        
         f.setResizable(false);
+        f.pack();
         f.addWindowListener(new WindowListener() {
             @Override public void windowOpened(WindowEvent e) {
                 
@@ -165,6 +246,12 @@ public class PNGRenderer implements Renderer {
                 }
             }
         }
+    }
+
+    @Override
+    public void updateInfo(String string) {
+        l.setText(string);
+        f.pack();
     }
     
     private class RenderThread extends Thread {

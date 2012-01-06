@@ -16,7 +16,7 @@ public class Buddhabrot implements Fractal{
     int height;
     Renderer renderer;
     
-    int minIterations=50;
+    int minIterations=10;
     
     Random r= new Random((long) (Math.random()*300000));
     
@@ -28,7 +28,8 @@ public class Buddhabrot implements Fractal{
     }
     
     @Override
-    public void generateData(int numPoints, int bailout) {
+    public void generateData(int minIterations,int numPoints, int bailout) {
+        this.minIterations=minIterations;
         
         double x, y;
         // iterate through some plots

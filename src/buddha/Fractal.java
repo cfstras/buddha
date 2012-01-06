@@ -13,7 +13,7 @@ public interface Fractal {
     void init(int sizex,int sizey, Renderer renderer);
     
     
-    void generateData(int num, int bailout);
+    void generateData(int minIterations,int num, int bailout);
     
     long getAccuracy();
 }

@@ -4,12 +4,16 @@
  */
 package buddha;
 
+import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import javax.swing.BoxLayout;
 
 /**
  *
@@ -115,6 +119,14 @@ public class AWTRenderer implements Renderer {
     
     public void awtInit() {
         f=new Frame("Butterbrot");
+        f.setLayout(new BoxLayout(f, BoxLayout.Y_AXIS));
+        Button b= new Button("Start Over (delete data)");
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            }
+        });
+        f.add(b);
         
         
         f.setPreferredSize(new Dimension((int)(width/sqaa),(int)(height/sqaa)));
@@ -163,6 +175,11 @@ public class AWTRenderer implements Renderer {
                 }
             }
         }
+    }
+
+    @Override
+    public void updateInfo(String string) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
     private class RenderThread extends Thread {

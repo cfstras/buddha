@@ -43,4 +43,6 @@ public interface Renderer {
      * @param sizey the canvas height in pixels
      */
     void init(float[] bgcolor, float[] fgcolor, int sizex, int sizey);
+
+    public void updateInfo(String string);
 }
