@@ -108,7 +108,7 @@ public class PNGRenderer implements Renderer {
         findMaxValue();
         BufferedImage img = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB );
         Graphics2D g = img.createGraphics();
-        g.setColor(new Color(color_r, color_g, color_b, alpha));
+        //g.setColor(new Color((float)Buddha.color_r, (float)Buddha.color_g, (float)Buddha.color_b, 0.0f));
         //g.fillRect(0, 0, width, height);
 
         double ramp = 0;
@@ -124,7 +124,7 @@ public class PNGRenderer implements Renderer {
                         continue;
                     ramp = Math.pow(ramp, 0.5);
                     
-                    g.setColor(new Color((float) ((color_r * ramp), (float) (color_g * ramp), (float) (color_b * ramp), alpha));
+                    g.setColor(new Color((float) (Buddha.color_r * ramp), (float) (Buddha.color_g * ramp), (float) (Buddha.color_b * ramp), Buddha.alpha));
                     g.drawRect(ix ,iy, 1, 1);
                 }
             }
