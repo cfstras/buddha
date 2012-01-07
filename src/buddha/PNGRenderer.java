@@ -32,8 +32,11 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 
 /**
  *
@@ -309,7 +312,7 @@ public class PNGRenderer implements Renderer {
             Buddha.maxIterations=Integer.parseInt(maxItField.getText());
         } catch(NumberFormatException ex) {}
         try {
-            int val=Integer.parseInt(maxItField.getText());
+            int val=Integer.parseInt(sizeField.getText());
             if(val!=Buddha.sizex) {
                 Buddha.sizey=val;
                 Buddha.sizex=val;
@@ -353,19 +356,34 @@ public class PNGRenderer implements Renderer {
     private void save() {
         startButton.setEnabled(false);
         restartButton.setEnabled(false);
+        // progressbar
+        JDialog pgf=new JDialog(f,"saving to file...");
+        JProgressBar jpg=new JProgressBar();
+        jpg.setBounds(0,0,300,70);
+        pgf.add(jpg);
+        pgf.pack();
+        pgf.setLocationRelativeTo(f);
         OutputStream os = null;
         try {
             File db = new File("buddha-" + Buddha.maxIterations + "-" + Buddha.minIterations + "-" + numPoints / 1000000 + "M.bbf");
             if (!db.createNewFile()) {
                 JOptionPane.showMessageDialog(f, "File "+db.getName()+" already exists!", "File exists!", JOptionPane.ERROR_MESSAGE);
             }
+            
+            pgf.setVisible(true);
+            jpg.setIndeterminate(true);
             os = new FileOutputStream(db);
             ZipOutputStream zos = new ZipOutputStream(os);
             zos.setLevel(5);
             zos.putNextEntry(new ZipEntry("BuddhaBrot cfs database entry"));
             
             //header
+            jpg.setMinimum(0);
+            int jpgOffset=(int)(0.1f*width);
+            jpg.setMaximum(width+jpgOffset);
             
+            jpg.setValue(0);
+            jpg.setIndeterminate(false);
             DataOutputStream dos=new DataOutputStream(zos);
             dos.writeUTF("BuddhaBrot Save File.");
             dos.writeInt(width);
@@ -373,10 +391,12 @@ public class PNGRenderer implements Renderer {
             dos.writeInt(Buddha.minIterations);
             dos.writeInt(Buddha.maxIterations);
             dos.writeLong(numPoints);
+            jpg.setValue(jpgOffset);
             for(int ix=0;ix<width;ix++) {
                 for(int iy=0;iy<height;iy++) {
                     dos.writeDouble(data[ix][iy]);
                 }
+                jpg.setValue(jpgOffset+ix);
             }
             dos.writeUTF("End of Save file.");
             dos.flush();
@@ -393,6 +413,7 @@ public class PNGRenderer implements Renderer {
                     os.close();
             } catch (IOException ex) {}
         }
+        pgf.dispose();
         startButton.setEnabled(true);
         restartButton.setEnabled(true);
     }
@@ -401,7 +422,14 @@ public class PNGRenderer implements Renderer {
     private void load() {
         startButton.setEnabled(false);
         restartButton.setEnabled(false);
-        //TODO progressbar
+        // progressbar
+        JDialog pgf=new JDialog(f,"loading...");
+        JProgressBar jpg=new JProgressBar();
+        jpg.setBounds(0,0,300,70);
+        pgf.add(jpg);
+        pgf.pack();
+        pgf.setLocationRelativeTo(f);
+        
         String error="";
         InputStream os = null;
         try {
@@ -416,6 +444,8 @@ public class PNGRenderer implements Renderer {
                 return;
             }
             File db=jfc.getSelectedFile();
+            pgf.setVisible(true);
+            jpg.setIndeterminate(true);
             if (!db.canRead()) {
                 JOptionPane.showMessageDialog(f, "File "+db.getName()+" cannot be read!", "Read error!", JOptionPane.ERROR_MESSAGE);
             }
@@ -441,12 +471,20 @@ public class PNGRenderer implements Renderer {
             
             Buddha.minIterations=dos.readInt();
             Buddha.maxIterations=dos.readInt();
+            jpg.setMinimum(0);
+            int jpgOffset=(int)(0.2f*width);
+            jpg.setMaximum(width+jpgOffset);
+            
+            jpg.setValue(0);
+            jpg.setIndeterminate(false);
             reInit();
+            jpg.setValue(jpgOffset);
             numPoints=dos.readLong();
             for(int ix=0;ix<width;ix++) {
                 for(int iy=0;iy<height;iy++) {
                     data[ix][iy]=dos.readDouble();
                 }
+                jpg.setValue(jpgOffset+ix);
             }
             if(!dos.readUTF().equals("End of Save file.")) {
                 error="Not a Buddhabrot Savefile / corrupted file.";
@@ -468,6 +506,7 @@ public class PNGRenderer implements Renderer {
                 if(os!=null)
                     os.close();
             } catch (IOException ex) {}
+            pgf.dispose();
             startButton.setEnabled(true);
             restartButton.setEnabled(true);
         }
