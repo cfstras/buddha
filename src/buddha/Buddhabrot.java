@@ -15,22 +15,24 @@ public class Buddhabrot implements Fractal{
     int width;
     int height;
     Renderer renderer;
-    
-    int minIterations=10;
+    double[] xyseq;
+    int minIterations=0;
+    int maxIterations=0;
     
     Random r= new Random((long) (Math.random()*300000));
     
     @Override
-    public void init(int sizex, int sizey, Renderer renderer) {
+    public void init(int sizex, int sizey,int minIterations,int maxIterations, Renderer renderer) {
         width=sizey;
         height=sizex; //the mixup is intentionally, to rotate it.
         this.renderer=renderer;
+        this.minIterations=minIterations;
+        this.maxIterations=maxIterations;
+        xyseq =new double[maxIterations*2];
     }
     
     @Override
-    public void generateData(int minIterations,int numPoints, int bailout) {
-        this.minIterations=minIterations;
-        
+    public void generateData(int numPoints) {
         double x, y;
         // iterate through some plots
         for (int n = 0; n < numPoints; n++) {
@@ -38,22 +40,21 @@ public class Buddhabrot implements Fractal{
             x = r.nextDouble()*6f -3f;  // range -2.0, 1.0 //old, now both -3,3
             y = r.nextDouble()*6f -3f; //range -1.5, 1.5 
 
-            iterate(x, y,bailout);
+            iterate(x, y);
         }
         
     }
     
     
-    void iterate(double x0, double y0, int bailout) {
+    void iterate(double x0, double y0) {
         double x = 0;
         double y = 0;
         double xnew, ynew;
         int ix, iy;
         boolean escapes = false;
         int n=0;
-        double[] xyseq=new double[bailout*2];
         
-        for (int i = 0; i < bailout; i++) {
+        for (int i = 0; i < maxIterations; i++) {
             xnew = x * x - y * y + x0;
             ynew = 2 * x * y + y0;
             xyseq[i*2]=xnew;
@@ -69,9 +70,6 @@ public class Buddhabrot implements Fractal{
             x = xnew;
             y = ynew;
         }
-        
-        x=0;
-        y=0;
         if(escapes) {
             for (int i = 0; i < n; i++) {
                 if (i > minIterations) {

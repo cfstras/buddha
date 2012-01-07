@@ -10,12 +10,12 @@ package buddha;
  */
 public class Buddha {
 
-    static int sizex=8192;
-    static int sizey=8192;
+    static int sizex=1024;
+    static int sizey=1024;
     
     static int maxIterations=200;
-    static int minIterations=3;
-    static int numToRun=8192;
+    static int minIterations=5;
+    static int numToRun=1024*1024*512;
     
     static int numThreads=8;
     
@@ -74,6 +74,7 @@ public class Buddha {
                     threads[i].join();
                 } catch (InterruptedException ex) {}
             }
+            System.gc();
         }
         renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    stopped        ");
     }
@@ -102,9 +103,10 @@ public class Buddha {
         @Override
         public void run() {
             f = new Buddhabrot();
-            f.init(sizex, sizey, renderer);
+            f.init(sizex, sizey,minIterations,maxIterations, renderer);
             while (run) {
-                f.generateData(minIterations, numToRun, maxIterations);
+                f.generateData(numToRun/maxIterations);
+                //System.out.println("Renderthread finished "+numToRun/maxIterations+" iterations");
             }
             try {
                     Buddha.guiThread.join(1000);

@@ -10,10 +10,9 @@ package buddha;
  */
 public interface Fractal {
     
-    void init(int sizex,int sizey, Renderer renderer);
+    void init(int sizex,int sizey, int minIterations,int maxIterations,Renderer renderer);
     
-    
-    void generateData(int minIterations,int num, int bailout);
+    void generateData(int num);
     
     long getAccuracy();
 }

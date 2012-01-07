@@ -134,7 +134,7 @@ public class PNGRenderer implements Renderer {
                     
                     g.setColor(new Color((float) (Buddha.color_r * ramp), (float) (Buddha.color_g * ramp), (float) (Buddha.color_b * ramp), Buddha.alpha));
                     //color support atm without transparency - lower alpha value only make the image brighter
-                    g.drawRect(ix ,iy, 1, 1);
+                    g.drawRect(ix ,iy, 0, 0);// ix,iy,1,1 drew a 2x2 rect - baaad.
                 }
             }
         }
