@@ -40,7 +40,7 @@ import javax.swing.JProgressBar;
 
 /**
  *
- * @author claus
+ * @author claus, morth
  */
 public class PNGRenderer implements Renderer {
     
@@ -116,8 +116,8 @@ public class PNGRenderer implements Renderer {
         findMaxValue();
         BufferedImage img = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB );
         Graphics2D g = img.createGraphics();
-        //g.setColor(new Color((float)Buddha.color_r, (float)Buddha.color_g, (float)Buddha.color_b, 0.0f));
-        //g.fillRect(0, 0, width, height);
+        g.setColor(new Color(0.0f, 0.0f, 0.0f, 1.0f)); // set color to black
+        g.fillRect(0, 0, width, height); // draw a black background
 
         double ramp = 0;
         synchronized (dataSync) {
@@ -133,6 +133,7 @@ public class PNGRenderer implements Renderer {
                     ramp = Math.pow(ramp, 0.5);
                     
                     g.setColor(new Color((float) (Buddha.color_r * ramp), (float) (Buddha.color_g * ramp), (float) (Buddha.color_b * ramp), Buddha.alpha));
+                    //color support atm without transparency - lower alpha value only make the image brighter
                     g.drawRect(ix ,iy, 1, 1);
                 }
             }
@@ -267,28 +268,28 @@ public class PNGRenderer implements Renderer {
         
         c= new Container();
         c.setLayout(new BoxLayout(c,BoxLayout.X_AXIS));
-        c.add(new Label("Red as float (0f - 1f): "));
+        c.add(new Label("Red: "));
         color_r=new TextField(Float.toString(Buddha.color_r));
         c.add(color_r);
         f.add(c);
         
         c= new Container();
         c.setLayout(new BoxLayout(c,BoxLayout.X_AXIS));
-        c.add(new Label("Green as float: "));
+        c.add(new Label("Green: "));
         color_g=new TextField(Float.toString(Buddha.color_g));
         c.add(color_g);
         f.add(c);
         
         c= new Container();
         c.setLayout(new BoxLayout(c,BoxLayout.X_AXIS));
-        c.add(new Label("Blue as float: "));
+        c.add(new Label("Blue: "));
         color_b=new TextField(Float.toString(Buddha.color_b));
         c.add(color_b);
         f.add(c);
         
         c= new Container();
         c.setLayout(new BoxLayout(c,BoxLayout.X_AXIS));
-        c.add(new Label("Alpha as float: "));
+        c.add(new Label("Alpha: ")); 
         alpha=new TextField(Float.toString(Buddha.alpha));
         c.add(alpha);
         f.add(c);
