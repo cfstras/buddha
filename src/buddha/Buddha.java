@@ -17,6 +17,8 @@ public class Buddha {
     static int minIterations=3;
     static int numToRun=2000;
     
+    static float color_r = 1f, color_g = 1f, color_b = 1f, alpha = 1f;
+    
     static boolean threadsRunning;
     static Renderer renderer;
     static RenderThread[] threads;
@@ -29,7 +31,7 @@ public class Buddha {
         setLwjglPath();
         renderer = new PNGRenderer();
         float[] bgcolor= {0f,0f,0f,0f};
-        float[] fgcolor= {1f,1f,1f,1f};
+        float[] fgcolor= {color_r,color_g,color_b,alpha};
         
         renderer.init(bgcolor, fgcolor, sizex, sizey);
         

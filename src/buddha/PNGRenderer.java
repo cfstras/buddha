@@ -62,6 +62,7 @@ public class PNGRenderer implements Renderer {
     TextField minItField;
     TextField maxItField;
     TextField sizeField;
+    TextField color_r,color_g,color_b,alpha;
     
     final Object dataSync=new Object();
     
@@ -107,8 +108,8 @@ public class PNGRenderer implements Renderer {
         findMaxValue();
         BufferedImage img = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB );
         Graphics2D g = img.createGraphics();
-        g.setColor(new Color(bgcolor[0], bgcolor[1], bgcolor[2], bgcolor[3]));
-        g.fillRect(0, 0, width, height);
+        g.setColor(new Color(color_r, color_g, color_b, alpha));
+        //g.fillRect(0, 0, width, height);
 
         double ramp = 0;
         synchronized (dataSync) {
@@ -123,7 +124,7 @@ public class PNGRenderer implements Renderer {
                         continue;
                     ramp = Math.pow(ramp, 0.5);
                     
-                    g.setColor(new Color((float) (fgcolor[0] * ramp), (float) (fgcolor[1] * ramp), (float) (fgcolor[2] * ramp), fgcolor[3]));
+                    g.setColor(new Color((float) ((color_r * ramp), (float) (color_g * ramp), (float) (color_b * ramp), alpha));
                     g.drawRect(ix ,iy, 1, 1);
                 }
             }
@@ -258,6 +259,34 @@ public class PNGRenderer implements Renderer {
         
         c= new Container();
         c.setLayout(new BoxLayout(c,BoxLayout.X_AXIS));
+        c.add(new Label("Red as float (0f - 1f): "));
+        color_r=new TextField(Float.toString(Buddha.color_r));
+        c.add(color_r);
+        f.add(c);
+        
+        c= new Container();
+        c.setLayout(new BoxLayout(c,BoxLayout.X_AXIS));
+        c.add(new Label("Green as float: "));
+        color_g=new TextField(Float.toString(Buddha.color_g));
+        c.add(color_g);
+        f.add(c);
+        
+        c= new Container();
+        c.setLayout(new BoxLayout(c,BoxLayout.X_AXIS));
+        c.add(new Label("Blue as float: "));
+        color_b=new TextField(Float.toString(Buddha.color_b));
+        c.add(color_b);
+        f.add(c);
+        
+        c= new Container();
+        c.setLayout(new BoxLayout(c,BoxLayout.X_AXIS));
+        c.add(new Label("Alpha as float: "));
+        alpha=new TextField(Float.toString(Buddha.alpha));
+        c.add(alpha);
+        f.add(c);
+        
+        c= new Container();
+        c.setLayout(new BoxLayout(c,BoxLayout.X_AXIS));
         c.add(new Label("Image side length (if you change it, data will be deleted):"));
         sizeField=new TextField(Integer.toString(Buddha.sizex));
         c.add(sizeField);
@@ -311,6 +340,18 @@ public class PNGRenderer implements Renderer {
         try {
             Buddha.maxIterations=Integer.parseInt(maxItField.getText());
         } catch(NumberFormatException ex) {}
+        try {
+            Buddha.color_r=Float.parseFloat(color_r.getText());
+        } catch (NumberFormatException ex) {}
+        try {
+            Buddha.color_g=Float.parseFloat(color_g.getText());
+        } catch (NumberFormatException ex) {}
+        try {
+            Buddha.color_b=Float.parseFloat(color_b.getText());
+        } catch (NumberFormatException ex) {}
+        try {
+            Buddha.alpha=Float.parseFloat(alpha.getText());
+        } catch (NumberFormatException ex) {}
         try {
             int val=Integer.parseInt(sizeField.getText());
             if(val!=Buddha.sizex) {
