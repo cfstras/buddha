@@ -35,8 +35,8 @@ public class Buddhabrot implements Fractal{
         // iterate through some plots
         for (int n = 0; n < numPoints; n++) {
             // Choose a random point in same range
-            x = r.nextDouble()*3f -2f;  // range -2.0, 1.0
-            y = r.nextDouble()*3f -1.5f; //range -1.5, 1.5
+            x = r.nextDouble()*6f -3f;  // range -2.0, 1.0 //old, now both -3,3
+            y = r.nextDouble()*6f -3f; //range -1.5, 1.5 
 
             iterate(x, y,bailout);
         }
@@ -49,43 +49,43 @@ public class Buddhabrot implements Fractal{
         double y = 0;
         double xnew, ynew;
         int ix, iy;
-        boolean drawIt = false;
-
+        boolean escapes = false;
+        int n=0;
+        double[] xyseq=new double[bailout*2];
+        
         for (int i = 0; i < bailout; i++) {
             xnew = x * x - y * y + x0;
             ynew = 2 * x * y + y0;
-
-            if ((xnew * xnew + ynew * ynew) > 4) {
+            xyseq[i*2]=xnew;
+            xyseq[i*2+1]=ynew;
+            if ((xnew * xnew + ynew * ynew) > 10) {
                 // escapes
-                drawIt = true;
+                n=i;
+                escapes = true;
+                break;
             }
-
+            if(Thread.interrupted())
+                return;
             x = xnew;
             y = ynew;
         }
         
         x=0;
         y=0;
-        if(drawIt) {
-            for (int i = 0; i < bailout; i++) {
-                xnew = x * x - y * y + x0;
-                ynew = 2 * x * y + y0;
-
-                if ((xnew * xnew + ynew * ynew) > 4) {
-                    // escapes
-                    drawIt = true;
-                }
-                if (drawIt && (i > minIterations)) {
-                    ix = (int) (width * (xnew + 2.0f) / 3.0f);
-                    iy = (int) (height * (ynew + 1.5f) / 3.0f);
+        if(escapes) {
+            for (int i = 0; i < n; i++) {
+                if (i > minIterations) {
+                    //ix = (int) (width * (xnew + 2.0f) / 3.0f);
+                    //iy = (int) (height * (ynew + 1.5f) / 3.0f);
+                    ix=(int)( 0.3 * width * (xyseq[i*2]+0.5) + width/2);
+                    iy=(int)( 0.3 * height * xyseq[i*2+1] + height/2);
                     if (ix > 0 && iy > 0 && ix < width && iy < height) {
-                        renderer.addToPoint(iy, ix, 1f);
+                        renderer.addOneToPoint(iy, ix);
                     }
 
                 }
-
-                x = xnew;
-                y = ynew;
+                if(Thread.interrupted())
+                    return;
             }
             
         }

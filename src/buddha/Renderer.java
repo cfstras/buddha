@@ -45,4 +45,6 @@ public interface Renderer {
     void init(float[] bgcolor, float[] fgcolor, int sizex, int sizey);
 
     public void updateInfo(String string);
+
+    public void addOneToPoint(int iy, int ix);
 }

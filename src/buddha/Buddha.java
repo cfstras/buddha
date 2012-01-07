@@ -15,7 +15,9 @@ public class Buddha {
     
     static int maxIterations=200;
     static int minIterations=3;
-    static int numToRun=2000;
+    static int numToRun=8192;
+    
+    static int numThreads=8;
     
     static float color_r = 1f, color_g = 1f, color_b = 1f, alpha = 1f;
     
@@ -35,7 +37,7 @@ public class Buddha {
         
         renderer.init(bgcolor, fgcolor, sizex, sizey);
         
-        threads = new RenderThread[4];
+        threads = new RenderThread[numThreads];
         try {
             Thread.sleep(5000);
         } catch (InterruptedException ex) {}
@@ -78,9 +80,10 @@ public class Buddha {
     
     static void restartThreads() {
         stopThreads();
-        for(int i=0;i<4;i++) {
+        for(int i=0;i<numThreads;i++) {
             threads[i]=new RenderThread();
             threads[i].setPriority(Thread.MIN_PRIORITY);
+            threads[i].setName("GeneratorThread-"+i);
             threads[i].start();
         }
         threadsRunning=true;
@@ -95,16 +98,16 @@ public class Buddha {
     static class RenderThread extends Thread {
 
         boolean run = true;
-
+        Fractal f;
         @Override
         public void run() {
-            Fractal f = new Buddhabrot();
+            f = new Buddhabrot();
             f.init(sizex, sizey, renderer);
             while (run) {
                 f.generateData(minIterations, numToRun, maxIterations);
             }
             try {
-                    Buddha.guiThread.join();
+                    Buddha.guiThread.join(1000);
                 } catch (InterruptedException ex) {
             }
         }

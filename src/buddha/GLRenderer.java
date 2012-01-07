@@ -42,6 +42,13 @@ public class GLRenderer implements Renderer {
             numPoints++;
         }
     }
+    @Override
+    public void addOneToPoint(int x, int y) {
+        synchronized(dataSync) {
+            data[x][y]++;
+            numPoints++;
+        }
+    }
 
     @Override
     public void render() {
