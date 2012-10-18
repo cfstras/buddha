@@ -12,7 +12,7 @@ import java.awt.Color;
  */
 public class Buddha {
 
-    static int updateInterval = 500;
+    static int updateInterval = 300;
     
     static int sizex=1024;
     static int sizey=1024;
@@ -105,14 +105,6 @@ public class Buddha {
         previewing = false;
         prevThread.run=false;
         prevThread = null;
-    }
-
-    static void updateRenderValues() {
-        for(GenerateThread r : threads) {
-            if(r!=null) {
-                r.f.set(minIterations,maxIterations);
-            }
-        }
     }
     
     static class GenerateThread extends Thread {

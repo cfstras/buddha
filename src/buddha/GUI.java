@@ -21,6 +21,7 @@ public class GUI extends javax.swing.JFrame {
      */
     public GUI() {
         initComponents();
+        setLocationByPlatform(true);
         setVisible(true);
         
         canvas.createBufferStrategy(2);
@@ -83,6 +84,7 @@ public class GUI extends javax.swing.JFrame {
         exposuresLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Buddha");
 
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
         jSeparator1.setToolTipText("");
@@ -103,7 +105,7 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        clearButton.setText("Clear");
+        clearButton.setText("Clear & Apply Values");
         clearButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 clearButtonActionPerformed(evt);
@@ -111,8 +113,18 @@ public class GUI extends javax.swing.JFrame {
         });
 
         saveButton.setText("Save");
+        saveButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveButtonActionPerformed(evt);
+            }
+        });
 
         loadButton.setText("Load");
+        loadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadButtonActionPerformed(evt);
+            }
+        });
 
         renderStatus.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         renderStatus.setText("on");
@@ -162,6 +174,11 @@ public class GUI extends javax.swing.JFrame {
         canvas.setPreferredSize(new java.awt.Dimension(500, 500));
 
         minItField.setText("5");
+        minItField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                minItFieldActionPerformed(evt);
+            }
+        });
         minItField.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 minItFieldPropertyChange(evt);
@@ -173,6 +190,11 @@ public class GUI extends javax.swing.JFrame {
         jLabel5.setText("max Iterations");
 
         maxItField.setText("200");
+        maxItField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                maxItFieldActionPerformed(evt);
+            }
+        });
         maxItField.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 maxItFieldPropertyChange(evt);
@@ -196,7 +218,7 @@ public class GUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator2)
-                    .addComponent(sliderG, javax.swing.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE)
+                    .addComponent(sliderG, javax.swing.GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
                     .addComponent(sliderR, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3)
@@ -207,6 +229,14 @@ public class GUI extends javax.swing.JFrame {
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTextField1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel4))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(minItField)
+                            .addComponent(maxItField)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -224,25 +254,17 @@ public class GUI extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(saveButton)
                                     .addComponent(jLabel2)
-                                    .addComponent(clearButton)
                                     .addComponent(jLabel1)
                                     .addComponent(generateButton))
                                 .addGap(46, 46, 46)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(previewButton)
-                                    .addComponent(loadButton, javax.swing.GroupLayout.Alignment.TRAILING)))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(minItField)
-                            .addComponent(maxItField))))
+                                    .addComponent(loadButton, javax.swing.GroupLayout.Alignment.TRAILING)))
+                            .addComponent(clearButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(canvas, javax.swing.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE)
+                .addComponent(canvas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -308,23 +330,46 @@ public class GUI extends javax.swing.JFrame {
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
         if(generateButton.isSelected() && !Buddha.threadsRunning) {
             setGenerateStatus("starting...");
-            Buddha.restartThreads();
         } else if(Buddha.threadsRunning) {
             setGenerateStatus("stopping...");
+        }
+        new Thread() {
+            @Override public void run() {
+                applyGenerateButton();
+            }
+        }.start();
+    }//GEN-LAST:event_generateButtonActionPerformed
+    
+    private void applyGenerateButton() {
+        if(generateButton.isSelected() && !Buddha.threadsRunning) {
+            Buddha.restartThreads();
+        } else if(Buddha.threadsRunning) {
             Buddha.stopThreads();
         }
-    }//GEN-LAST:event_generateButtonActionPerformed
-
+    }
+    
     private void previewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previewButtonActionPerformed
         if(previewButton.isSelected() && !Buddha.previewing) {
             setRenderStatus("starting...");
-            Buddha.reStartPreview();
         } else if(Buddha.previewing) {
             setRenderStatus("stopping...");
+        }
+        
+        new Thread() {
+            @Override public void run() {
+                applyPreviewButton();
+            }
+        }.start();
+    }//GEN-LAST:event_previewButtonActionPerformed
+    
+    private void applyPreviewButton() {
+        if(previewButton.isSelected() && !Buddha.previewing) {
+            Buddha.reStartPreview();
+        } else if(Buddha.previewing) {
             Buddha.stopPreview();
         }
-    }//GEN-LAST:event_previewButtonActionPerformed
-
+    }
+    
     private void sliderRStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sliderRStateChanged
         int r = sliderR.getValue();
         sliderR.setBackground(new Color(r,0,0));
@@ -352,32 +397,61 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_sliderBStateChanged
 
     private void clearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearButtonActionPerformed
+        new Thread() {
+            @Override public void run() {
+                clearAndApply();
+            }
+        }.start();
+    }//GEN-LAST:event_clearButtonActionPerformed
+    
+    private void clearAndApply() {
         if(Buddha.threadsRunning) {
-            generateButton.setEnabled(false);
+            generateButton.setSelected(false);
             setGenerateStatus("stopping...");
             Buddha.stopThreads();
         }
-        Buddha.renderer.reInit();
-        updateExposures(0);
-    }//GEN-LAST:event_clearButtonActionPerformed
-
-    private void minItFieldPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_minItFieldPropertyChange
         try {
             Buddha.minIterations = Integer.parseInt(minItField.getText());
         } catch (NumberFormatException ex) {
             System.out.println("screw you.");
         }
-        Buddha.updateRenderValues();
-    }//GEN-LAST:event_minItFieldPropertyChange
-
-    private void maxItFieldPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_maxItFieldPropertyChange
         try {
             Buddha.maxIterations = Integer.parseInt(maxItField.getText());
         } catch (NumberFormatException ex) {
             System.out.println("screw you.");
         }
-        Buddha.updateRenderValues();
+        
+        Buddha.renderer.reInit();
+        updateExposures(0);
+    }
+    
+    private void minItFieldPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_minItFieldPropertyChange
+
+    }//GEN-LAST:event_minItFieldPropertyChange
+
+    private void maxItFieldPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_maxItFieldPropertyChange
+
     }//GEN-LAST:event_maxItFieldPropertyChange
+
+    private void minItFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_minItFieldActionPerformed
+    }//GEN-LAST:event_minItFieldActionPerformed
+
+    private void maxItFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maxItFieldActionPerformed
+    }//GEN-LAST:event_maxItFieldActionPerformed
+
+    private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
+        generateButton.setSelected(false);
+        generateButtonActionPerformed(null);
+        Buddha.renderer.save();
+        
+    }//GEN-LAST:event_saveButtonActionPerformed
+
+    private void loadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadButtonActionPerformed
+        generateButton.setSelected(false);
+        generateButtonActionPerformed(null);
+        Buddha.renderer.load();
+        updateExposures(Buddha.renderer.getExposes());
+    }//GEN-LAST:event_loadButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private java.awt.Canvas canvas;

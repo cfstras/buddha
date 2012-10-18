@@ -115,7 +115,7 @@ public class PNGRenderer implements Renderer {
         synchronized (dataSync) {
             for (int ix = 0; ix < width; ix ++) {
                 for (int iy = 0; iy < height; iy ++) {
-                    ramp =data[ix ][iy ];
+                    ramp = data[ix ][iy ];
                     //ramp /= aa;
                     ramp = 2 * (ramp - minValue) / (maxValue - minValue);
                     if (ramp > 1f) {
@@ -178,11 +178,14 @@ public class PNGRenderer implements Renderer {
         reInit();
     }
 
+    @Override
     public void reInit() {
-        data= null;
-        System.gc();
-        //Thread.currentThread().setPriority((Thread.MIN_PRIORITY+Thread.NORM_PRIORITY)/2);
-        data=new double[width][height];
+        synchronized (dataSync) {
+            data= null;
+            //Thread.currentThread().setPriority((Thread.MIN_PRIORITY+Thread.NORM_PRIORITY)/2);
+            data=new double[width][height];
+        }
+        //System.gc(); //TODO maybe add some gc
         numPoints=0;
     }
 
@@ -412,16 +415,16 @@ public class PNGRenderer implements Renderer {
 */
 
 
-    private void save() {
-        startButton.setEnabled(false);
-        restartButton.setEnabled(false);
+    public void save() {
+        //startButton.setEnabled(false);
+        //restartButton.setEnabled(false);
         // progressbar
         JDialog pgf=new JDialog(f,"saving to file...");
         JProgressBar jpg=new JProgressBar();
         jpg.setBounds(0,0,300,70);
         pgf.add(jpg);
         pgf.pack();
-        pgf.setLocationRelativeTo(f);
+        pgf.setLocationRelativeTo(Buddha.gui);
         OutputStream os = null;
         try {
             File db = new File("buddha-" + Buddha.maxIterations + "-" + Buddha.minIterations + "-" + numPoints / 1000000 + "M.bbf");
@@ -473,14 +476,15 @@ public class PNGRenderer implements Renderer {
             } catch (IOException ex) {}
         }
         pgf.dispose();
-        startButton.setEnabled(true);
-        restartButton.setEnabled(true);
+        //startButton.setEnabled(true);
+        //restartButton.setEnabled(true);
     }
 
 
-    private void load() {
-        startButton.setEnabled(false);
-        restartButton.setEnabled(false);
+    @Override
+    public void load() {
+        //startButton.setEnabled(false);
+        //restartButton.setEnabled(false);
         // progressbar
         JDialog pgf=new JDialog(f,"loading...");
         JProgressBar jpg=new JProgressBar();
@@ -566,8 +570,8 @@ public class PNGRenderer implements Renderer {
                     os.close();
             } catch (IOException ex) {}
             pgf.dispose();
-            startButton.setEnabled(true);
-            restartButton.setEnabled(true);
+            //startButton.setEnabled(true);
+            //restartButton.setEnabled(true);
         }
     }
 

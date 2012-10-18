@@ -54,4 +54,7 @@ public interface Renderer {
     public void expose(int iy, int ix);
     
     public void setColor(Color foreground, Color background);
+    
+    void save();
+    void load();
 }
