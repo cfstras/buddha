@@ -4,12 +4,16 @@
  */
 package buddha;
 
+import java.awt.Color;
+
 /**
  *
  * @author claus
  */
 public class Buddha {
 
+    static int updateInterval = 500;
+    
     static int sizex=1024;
     static int sizey=1024;
     
@@ -17,14 +21,19 @@ public class Buddha {
     static int minIterations=5;
     static int numToRun=1024*1024*512;
     
-    static int numThreads=8;
+    static int maxThreads=8;
+    static int numThreads;
     
-    static float color_r = 1f, color_g = 1f, color_b = 1f, alpha = 1f;
+    static Color fgColor;
+    static Color bgColor;
     
     static boolean threadsRunning;
     static Renderer renderer;
-    static RenderThread[] threads;
-    static Thread guiThread;
+    static GenerateThread[] threads;
+    static PreviewThread prevThread;
+    //static Thread guiThread;
+    static GUI gui;
+    static boolean previewing;
     
     /**
      * @param args the command line arguments
@@ -32,39 +41,22 @@ public class Buddha {
     public static void main(String[] args) {
         setLwjglPath();
         renderer = new PNGRenderer();
-        float[] bgcolor= {0f,0f,0f,0f};
-        float[] fgcolor= {color_r,color_g,color_b,alpha};
+        bgColor= new Color(0,0,0,0);
+        fgColor= new Color(255,255,255,255);
         
-        renderer.init(bgcolor, fgcolor, sizex, sizey);
+        renderer.init(sizex, sizey);
+        renderer.setColor(fgColor, bgColor);
         
-        threads = new RenderThread[numThreads];
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException ex) {}
-        
-        renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    not started     ");
-        
-        int i=0;
-        while(true) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {}
-            i++;
-            
-            if(threadsRunning) {
-                renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    running       ");
-                System.out.println("generated "+renderer.getNumDataRecvd()+" exposures");
-                if(i%600==0) // every 10 minutes
-                    renderer.render();
-            }
-        }    
+        numThreads = Math.min(Runtime.getRuntime().availableProcessors(),maxThreads);
+        threads = new GenerateThread[numThreads];
+        //renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getExposes()/1000000+"M    not started     ");
+        gui = new GUI();
     }
     
     static void stopThreads() {
         if(threadsRunning) {
             threadsRunning=false;
-            guiThread=Thread.currentThread();
-            renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    stopping       ");
+            //renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getExposes()/1000000+"M    stopping       ");
             for(int i=0;i<threads.length;i++) {
                 threads[i].run=false;
                 threads[i].interrupt();
@@ -74,44 +66,91 @@ public class Buddha {
                     threads[i].join();
                 } catch (InterruptedException ex) {}
             }
+            gui.setGenerateStatus("stopped.");
             System.gc();
         }
-        renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getNumDataRecvd()/1000000+"M    stopped        ");
+        //renderer.updateInfo("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getExposes()/1000000+"M    stopped        ");
     }
     
     static void restartThreads() {
         stopThreads();
         for(int i=0;i<numThreads;i++) {
-            threads[i]=new RenderThread();
+            threads[i]=new GenerateThread();
             threads[i].setPriority(Thread.MIN_PRIORITY);
             threads[i].setName("GeneratorThread-"+i);
             threads[i].start();
         }
         threadsRunning=true;
+        gui.setGenerateStatus("running...");
     }
 
     private static void setLwjglPath() {
         String fs=System.getProperty("file.separator","/");
-        //System.setProperty("java.library.path","lib"+fs+"native"+fs+"windows"+fs);
-        System.getProperties().list(System.out);
+        String os = System.getProperty("os.name");
+        if(os.contains("Windows")) os = "windows";
+        else if(os.contains("Linux")) os = "linux";
+        else if(os.contains("Solaris")) os = "solaris";
+        else if(os.contains("Mac")) os = "macosx";
+        System.setProperty("org.lwjgl.librarypath","lib"+fs+"native"+fs+os+fs);
+    }
+
+    static void reStartPreview() {
+        previewing = true;
+        if(prevThread!=null)
+            prevThread.run=false;
+        prevThread = new PreviewThread();
+        prevThread.start();
+    }
+    static void stopPreview() {
+        previewing = false;
+        prevThread.run=false;
+        prevThread = null;
+    }
+
+    static void updateRenderValues() {
+        for(GenerateThread r : threads) {
+            if(r!=null) {
+                r.f.set(minIterations,maxIterations);
+            }
+        }
     }
     
-    static class RenderThread extends Thread {
+    static class GenerateThread extends Thread {
 
         boolean run = true;
         Fractal f;
         @Override
         public void run() {
+            setName("Generator-");
             f = new Buddhabrot();
             f.init(sizex, sizey,minIterations,maxIterations, renderer);
             while (run) {
                 f.generateData(numToRun/maxIterations);
-                //System.out.println("Renderthread finished "+numToRun/maxIterations+" iterations");
+                gui.updateExposures(renderer.getExposes());
             }
-            try {
-                    Buddha.guiThread.join(1000);
+        }
+    }
+    static class PreviewThread extends Thread {
+        int i = 0;
+        static String[] tick = {"-","\\","|","/"};
+        boolean run = true;
+
+        @Override
+        public void run() {
+            setName("Preview");
+            gui.setRenderStatus("on");
+            while (run) {
+                try {
+                    Thread.sleep(updateInterval);
                 } catch (InterruptedException ex) {
+                }
+                if (threadsRunning) {
+                    gui.render();
+                    gui.setRenderStatus("on: "+tick[i%tick.length]);
+                    i++;
+                }
             }
+            gui.setRenderStatus("off");
         }
     }
 }

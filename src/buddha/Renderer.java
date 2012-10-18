@@ -4,6 +4,9 @@
  */
 package buddha;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+
 /**
  *
  * @author claus
@@ -26,14 +29,14 @@ public interface Renderer {
      */
     void addToPoint(int x,int y, double value);
     
-    long getNumDataRecvd();
+    long getExposes();
     
     /**
-     * animates the Renderer to render the current picture
-     * in its own thread
-     * 
+     * render the current picture
+     * disposes the graphics, too.
+     * @param image the Graphics element to draw the image to.
      */
-    void render();
+    void render(Graphics2D g);
     
     /**
      * initializes the renderer
@@ -42,9 +45,13 @@ public interface Renderer {
      * @param sizex the canvas width in pixels
      * @param sizey the canvas height in pixels
      */
-    void init(float[] bgcolor, float[] fgcolor, int sizex, int sizey);
+    void init(int sizex, int sizey);
+    
+    void reInit();
 
-    public void updateInfo(String string);
+    //public void updateInfo(String string);
 
-    public void addOneToPoint(int iy, int ix);
+    public void expose(int iy, int ix);
+    
+    public void setColor(Color foreground, Color background);
 }

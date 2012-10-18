@@ -6,18 +6,10 @@ package buddha;
 
 import java.awt.Button;
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Label;
 import java.awt.TextField;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -27,23 +19,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-import javax.imageio.ImageIO;
-import javax.swing.BoxLayout;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.plaf.SliderUI;
-import sun.swing.SwingAccessor;
+
 
 /**
  *
@@ -53,8 +36,8 @@ public class PNGRenderer implements Renderer {
 
     int width;
     int height;
-    float[] bgcolor;
-    float[] fgcolor;
+    Color bgColor;
+    Color fgColor;
     boolean render=false;
     Thread renderer;
 
@@ -69,7 +52,7 @@ public class PNGRenderer implements Renderer {
     TextField minItField;
     TextField maxItField;
     TextField sizeField;
-    JSlider color_r,color_g,color_b,alpha;
+    //JSlider color_r,color_g,color_b,alpha;
 
     final Object dataSync=new Object();
 
@@ -97,7 +80,7 @@ public class PNGRenderer implements Renderer {
         }
     }
     @Override
-    public void addOneToPoint(int x, int y) {
+    public void expose(int x, int y) {
         synchronized(dataSync) {
             data[x][y]++;
             numPoints++;
@@ -106,31 +89,28 @@ public class PNGRenderer implements Renderer {
 
 
     @Override
-    public long getNumDataRecvd() {
+    public long getExposes() {
         return numPoints;
     }
 
     @Override
-    public void render() {
+    public void render(Graphics2D g) {
         render=true;
-        renderButton.setEnabled(false);
+        //renderButton.setEnabled(false);
+        render1(g);
     }
 
-    private void render1() {
-	System.out.println("writing image");
-	infoLabel.setText("buddha-" + Buddha.maxIterations + "-" + Buddha.minIterations + "-" + numPoints / 1000000 + "M  writing          ");
-	statusLabel.setText("   generating image (Threads paused)...   ");
+    private void render1(Graphics2D g) {
+        
+	//System.out.println("writing image");
+	//infoLabel.setText("buddha-" + Buddha.maxIterations + "-" + Buddha.minIterations + "-" + numPoints / 1000000 + "M  writing          ");
+	//statusLabel.setText("   generating image (Threads paused)...   ");
 	findMaxValue();
-	BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-	Graphics2D g = img.createGraphics();
+	//BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+	//Graphics2D g = img.createGraphics();
 	g.setColor(new Color(0.0f, 0.0f, 0.0f, 1.0f)); // set color to black
-	if (Buddha.color_r < 0.02 && Buddha.color_g < 0.02 && Buddha.color_b < 0.02) {
-	    g.setColor(new Color(1.0f, 1.0f, 1.0f, 1.0f));
-	} else {
-	    g.setColor(new Color(0.0f, 0.0f, 0.0f, 1.0f));
-	}
 	g.fillRect(0, 0, width, height); // draw background
-
+        //TODO set bg color herre
         double ramp = 0;
         synchronized (dataSync) {
             for (int ix = 0; ix < width; ix ++) {
@@ -143,51 +123,70 @@ public class PNGRenderer implements Renderer {
                     } else if(ramp<=0)
                         continue;
                     ramp = Math.pow(ramp, 0.5);
-
-                    g.setColor(new Color((float) (Buddha.color_r * ramp), (float) (Buddha.color_g * ramp), (float) (Buddha.color_b * ramp), Buddha.alpha));
+                    
+                    float cr = fgColor.getRed() * (float)ramp + bgColor.getRed() * (1-(float)ramp);
+                    float cg = fgColor.getGreen() * (float)ramp + bgColor.getGreen() * (1-(float)ramp);
+                    float cb = fgColor.getBlue() * (float)ramp + bgColor.getBlue() * (1-(float)ramp);
+                    float ca = ramp==0?0:1;                   
+                    g.setColor(new Color(cr/255,cg/255,cb/255,ca));
                     //color support atm without transparency - lower alpha value only make the image brighter
-                    g.drawRect(ix ,iy, 0, 0);// ix,iy,1,1 drew a 2x2 rect - baaad.
+                    g.drawRect(ix ,iy, 0, 0);// ix,iy,1,1 draws a 2x2 rect - baaad.
                 }
             }
         }
-        img.flush();
+        //img.flush();
         g.dispose();
-        statusLabel.setText("   writing image to file...   ");
-        File output=new File("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+numPoints/1000000+"M.png");
-        try {
-            ImageIO.write(img, "png", output);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        System.out.println("written image.");
-        infoLabel.setText("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+numPoints/1000000+"M    written     ");
-        statusLabel.setText("  finished writing image");
-        renderButton.setEnabled(true);
+        //statusLabel.setText("   writing image to file...   ");
+        //File output=new File("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+numPoints/1000000+"M.png");
+        //try {
+        //    ImageIO.write(img, "png", output);
+        //} catch (IOException ex) {
+        //    ex.printStackTrace();
+        //}
+        //System.out.println("written image.");
+        //infoLabel.setText("buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+numPoints/1000000+"M    written     ");
+        //statusLabel.setText("  finished writing image");
+        //renderButton.setEnabled(true);
     }
-
+    
+    
+    private void findMaxValue() {
+        maxValue=0;
+        for(double[] dx: data) {
+            for(double dxy:dx) {
+                if(dxy>maxValue) {
+                    maxValue=dxy;
+                }
+            }
+        }
+        minValue=maxValue;
+        for(double[] dx: data) {
+            for(double dxy:dx) {
+                if(dxy<minValue) {
+                    minValue=dxy;
+                }
+            }
+        }
+    }
 
     @Override
-    public void init(float[] bgcolor, float[] fgcolor, int sizex, int sizey) {
+    public void init(int sizex, int sizey) {
         width=sizex;
         height=sizey;
-        this.bgcolor=bgcolor;
-        this.fgcolor=fgcolor;
+        fgColor = Color.WHITE;
+        bgColor = Color.BLACK;
         reInit();
-
-        //start thread that checks for keys etc.
-        renderer = new RenderThread();
-        renderer.start();
     }
 
-    private void reInit() {
+    public void reInit() {
         data= null;
         System.gc();
-        Thread.currentThread().setPriority((Thread.MIN_PRIORITY+Thread.NORM_PRIORITY)/2);
+        //Thread.currentThread().setPriority((Thread.MIN_PRIORITY+Thread.NORM_PRIORITY)/2);
         data=new double[width][height];
         numPoints=0;
     }
 
-    Button color;
+    /*Button color;
     public void awtInit() {
         f=new Frame("Butterbrot");
 	try {
@@ -403,26 +402,6 @@ public class PNGRenderer implements Renderer {
 	color.setBackground(new Color(Buddha.color_r,Buddha.color_g,Buddha.color_b,Buddha.alpha));
     }
 
-
-    private void findMaxValue() {
-        maxValue=0;
-        for(double[] dx: data) {
-            for(double dxy:dx) {
-                if(dxy>maxValue) {
-                    maxValue=dxy;
-                }
-            }
-        }
-        minValue=maxValue;
-        for(double[] dx: data) {
-            for(double dxy:dx) {
-                if(dxy<minValue) {
-                    minValue=dxy;
-                }
-            }
-        }
-    }
-
     @Override
     public void updateInfo(String string) {
         infoLabel.setText(string);
@@ -430,7 +409,7 @@ public class PNGRenderer implements Renderer {
 
         f.pack();
     }
-
+*/
 
 
     private void save() {
@@ -571,7 +550,7 @@ public class PNGRenderer implements Renderer {
                 return;
             }
             zos.closeEntry();
-            updateInfo("buddha-" + Buddha.maxIterations + "-" + Buddha.minIterations + "-" + numPoints / 1000000 + "M");
+            //updateInfo("buddha-" + Buddha.maxIterations + "-" + Buddha.minIterations + "-" + numPoints / 1000000 + "M");
             JOptionPane.showMessageDialog(f, "File "+db.getName()+" loaded!", "Yay!", JOptionPane.INFORMATION_MESSAGE);
         } catch(EOFException ex) {
             error="Not a Buddhabrot Savefile / corrupted file.";
@@ -593,12 +572,12 @@ public class PNGRenderer implements Renderer {
     }
 
 
-    private class RenderThread extends Thread {
+    /*private class RenderThread extends Thread {
         boolean run=true;
         @Override
         public void run() {
-            Buddha.guiThread=this;
-            awtInit();
+            //Buddha.guiThread=this;
+            //awtInit();
             while (run) {
 
                 //TODO check for keys pressed
@@ -611,6 +590,11 @@ public class PNGRenderer implements Renderer {
                 } catch (InterruptedException ex) {}
             }
         }
-    }
+    }*/
 
+    @Override
+    public void setColor(Color fg, Color bg) {
+         bgColor = bg;
+         fgColor = fg;
+    }
 }

@@ -78,23 +78,27 @@ public class Buddhabrot implements Fractal{
                     ix=(int)( 0.3 * width * (xyseq[i*2]+0.5) + width/2);
                     iy=(int)( 0.3 * height * xyseq[i*2+1] + height/2);
                     if (ix > 0 && iy > 0 && ix < width && iy < height) {
-                        renderer.addOneToPoint(iy, ix);
+                        //TODO cache these per thread!!
+                        renderer.expose(iy, ix);
                     }
-
                 }
                 if(Thread.interrupted())
                     return;
             }
-            
         }
         
-
         // does not escape, don't care.
     }
 
     @Override
     public long getAccuracy() {
         return 0;
+    }
+
+    @Override
+    public void set(int minIterations, int maxIterations) {
+        this.minIterations=minIterations;
+        this.maxIterations=maxIterations;
     }
     
 }
