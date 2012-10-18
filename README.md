@@ -30,7 +30,9 @@ Builds with ant or Netbeans.
 [170-5]: http://cfs.q1cc.net/temp/buddha/buddha-170-5-332M.png
 [200-5]: http://cfs.q1cc.net/temp/buddha/buddha200-old.png
 
+![1M Iterations max, 1 Iterations Min][1M-1]
 
+[1M-1]: http://cfs.q1cc.net/temp/buddha/buddha-custom-1M-1-5M.png "1M Iterations max, 1 Iterations Min"
 
 ###License
 
