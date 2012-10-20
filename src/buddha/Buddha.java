@@ -5,6 +5,13 @@
 package buddha;
 
 import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -74,8 +81,9 @@ public class Buddha {
     
     static void restartThreads() {
         stopThreads();
+        long seed = System.currentTimeMillis();
         for(int i=0;i<numThreads;i++) {
-            threads[i]=new GenerateThread();
+            threads[i]=new GenerateThread(seed+i);
             threads[i].setPriority(Thread.MIN_PRIORITY);
             threads[i].setName("GeneratorThread-"+i);
             threads[i].start();
@@ -107,15 +115,67 @@ public class Buddha {
         prevThread = null;
     }
     
+    static synchronized void exportImage() {
+        gui.startExporting();
+        
+        System.out.println("exporting image");
+	//infoLabel.setText("buddha-" + Buddha.maxIterations + "-" + Buddha.minIterations + "-" + numPoints / 1000000 + "M  writing          ");
+	gui.setExportStatus("generating...");
+	BufferedImage img = new BufferedImage(sizex, sizey, BufferedImage.TYPE_INT_ARGB);
+	Graphics2D g = img.createGraphics();
+        renderer.render(g);
+        img.flush();
+        g.dispose();
+        
+        gui.setExportStatus("saving...");
+        String filename = "buddha-"+Buddha.maxIterations+"-"+Buddha.minIterations+"-"+renderer.getExposes()/1000000+"M";
+        File output=new File(filename+".png");
+        int i = 1;
+        while(output.exists()) {
+            output = new File(filename+"_"+i+".png"); 
+            i++;
+        }
+        
+        try {
+            ImageIO.write(img, "png", output);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(gui,"Error exporting: "+ex, "Error exporting image", JOptionPane.ERROR_MESSAGE);
+        }
+        System.out.println("written image.");
+        gui.setExportStatus("finished");
+        gui.stopExporting();
+        
+        String[] options = {"Open Image", "OK"};
+        int option = JOptionPane.showOptionDialog(gui, "Image successfully exported: \n"
+                + output.getAbsolutePath(),"Hooray!", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE,null, options, options[1]);
+        
+        if(option == 0) {
+            try {
+                //open image
+                Desktop.getDesktop().open(output);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(gui,"Error opening image: "+ex, "Error opening image", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException ex) {}
+        gui.setExportStatus("          ");
+    }
+    
     static class GenerateThread extends Thread {
-
+        public GenerateThread(long seed) {
+            this.seed = seed;
+        }
+        long seed;
         boolean run = true;
         Fractal f;
         @Override
         public void run() {
             setName("Generator-");
             f = new Buddhabrot();
-            f.init(sizex, sizey,minIterations,maxIterations, renderer);
+            f.init(sizex, sizey,minIterations,maxIterations, renderer, seed);
             while (run) {
                 f.generateData(numToRun/maxIterations);
                 gui.updateExposures(renderer.getExposes());
@@ -126,7 +186,7 @@ public class Buddha {
         int i = 0;
         static String[] tick = {"-","\\","|","/"};
         boolean run = true;
-
+        public boolean redraw = false;
         @Override
         public void run() {
             setName("Preview");
@@ -136,7 +196,8 @@ public class Buddha {
                     Thread.sleep(updateInterval);
                 } catch (InterruptedException ex) {
                 }
-                if (threadsRunning) {
+                if (threadsRunning || redraw) {
+                    redraw=false;
                     gui.render();
                     gui.setRenderStatus("on: "+tick[i%tick.length]);
                     i++;

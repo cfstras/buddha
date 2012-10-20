@@ -36,8 +36,8 @@ public class PNGRenderer implements Renderer {
 
     int width;
     int height;
-    Color bgColor;
-    Color fgColor;
+    Color bgColor = Color.BLACK;
+    Color fgColor = Color.WHITE;
     boolean render=false;
     Thread renderer;
 
@@ -150,6 +150,7 @@ public class PNGRenderer implements Renderer {
     }
     
     
+    
     private void findMaxValue() {
         maxValue=0;
         for(double[] dx: data) {
@@ -167,14 +168,15 @@ public class PNGRenderer implements Renderer {
                 }
             }
         }
+        if(maxValue >= Double.MAX_VALUE*0.5) {
+            System.out.println("Careful, max value is "+maxValue);
+        }
     }
 
     @Override
     public void init(int sizex, int sizey) {
         width=sizex;
         height=sizey;
-        fgColor = Color.WHITE;
-        bgColor = Color.BLACK;
         reInit();
     }
 

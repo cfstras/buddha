@@ -18,11 +18,15 @@ public class Buddhabrot implements Fractal{
     double[] xyseq;
     int minIterations=0;
     int maxIterations=0;
+    long seed;
     
-    Random r= new Random((long) (Math.random()*300000));
+    Random r;
     
     @Override
-    public void init(int sizex, int sizey,int minIterations,int maxIterations, Renderer renderer) {
+    public void init(int sizex, int sizey,int minIterations,int maxIterations, Renderer renderer, long seed) {
+        System.out.println(Thread.currentThread().getName()+" seed: "+seed);
+        this.seed = seed;
+        r = new Random(seed);
         width=sizey;
         height=sizex; //the mixup is intentionally, to rotate it.
         this.renderer=renderer;

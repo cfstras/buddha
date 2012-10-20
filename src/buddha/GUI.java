@@ -36,6 +36,9 @@ public class GUI extends javax.swing.JFrame {
     public void setGenerateStatus(String s) {
         generateStatus.setText(s);
     }
+    public void setExportStatus(String s) {
+        exportLabel.setText(s);
+    }
     
     static String siPrefix = " KMGTP";
     
@@ -73,7 +76,7 @@ public class GUI extends javax.swing.JFrame {
         sliderG = new javax.swing.JSlider();
         sliderB = new javax.swing.JSlider();
         colorButton = new javax.swing.JButton();
-        canvas = new java.awt.Canvas();
+        canvas = new UpdateCanvas();
         minItField = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -82,6 +85,11 @@ public class GUI extends javax.swing.JFrame {
         jTextField1 = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         exposuresLabel = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        resolutionField = new javax.swing.JTextField();
+        exportButton = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
+        exportLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Buddha");
@@ -89,7 +97,7 @@ public class GUI extends javax.swing.JFrame {
         jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
         jSeparator1.setToolTipText("");
 
-        jLabel1.setText("Render Status:");
+        jLabel1.setText("Preview Status:");
 
         generateButton.setText("Generate");
         generateButton.addActionListener(new java.awt.event.ActionListener() {
@@ -105,7 +113,7 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        clearButton.setText("Clear & Apply Values");
+        clearButton.setText("Apply Values & Clear Data");
         clearButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 clearButtonActionPerformed(evt);
@@ -210,6 +218,26 @@ public class GUI extends javax.swing.JFrame {
         exposuresLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         exposuresLabel.setText("0");
 
+        jLabel8.setText("Resolution");
+
+        resolutionField.setText("1024");
+        resolutionField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resolutionFieldActionPerformed(evt);
+            }
+        });
+
+        exportButton.setText("Export Image");
+        exportButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel9.setText("Export Status:");
+
+        exportLabel.setText("                                  ");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -218,7 +246,7 @@ public class GUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator2)
-                    .addComponent(sliderG, javax.swing.GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
+                    .addComponent(sliderG, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(sliderR, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3)
@@ -237,6 +265,10 @@ public class GUI extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(minItField)
                             .addComponent(maxItField)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(resolutionField))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -251,16 +283,28 @@ public class GUI extends javax.swing.JFrame {
                                             .addComponent(generateStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
                                             .addComponent(renderStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(saveButton)
-                                    .addComponent(jLabel2)
-                                    .addComponent(jLabel1)
-                                    .addComponent(generateButton))
-                                .addGap(46, 46, 46)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel2)
+                                            .addComponent(jLabel1)
+                                            .addComponent(generateButton))
+                                        .addGap(46, 46, 46))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                        .addComponent(saveButton)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(previewButton)
-                                    .addComponent(loadButton, javax.swing.GroupLayout.Alignment.TRAILING)))
-                            .addComponent(clearButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                    .addComponent(loadButton, javax.swing.GroupLayout.Alignment.TRAILING)))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(clearButton, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(exportButton)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel9)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(exportLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -278,13 +322,19 @@ public class GUI extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(generateButton)
                             .addComponent(previewButton))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(clearButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(exportButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(saveButton)
                             .addComponent(loadButton))
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel9)
+                            .addComponent(exportLabel))
+                        .addGap(4, 4, 4)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
                             .addComponent(renderStatus))
@@ -320,6 +370,10 @@ public class GUI extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
                             .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel8)
+                            .addComponent(resolutionField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -377,6 +431,8 @@ public class GUI extends javax.swing.JFrame {
         Buddha.fgColor = new Color(r, old.getGreen(), old.getBlue());
         colorButton.setBackground(Buddha.fgColor);
         Buddha.renderer.setColor(Buddha.fgColor, Buddha.bgColor);
+        Buddha.prevThread.redraw=true;
+        Buddha.prevThread.interrupt();
     }//GEN-LAST:event_sliderRStateChanged
 
     private void sliderGStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sliderGStateChanged
@@ -385,7 +441,10 @@ public class GUI extends javax.swing.JFrame {
         Color old = Buddha.fgColor;
         Buddha.fgColor = new Color(old.getRed(), g, old.getBlue());
         colorButton.setBackground(Buddha.fgColor);
-        Buddha.renderer.setColor(Buddha.fgColor, Buddha.bgColor);    }//GEN-LAST:event_sliderGStateChanged
+        Buddha.renderer.setColor(Buddha.fgColor, Buddha.bgColor);
+        Buddha.prevThread.redraw=true;
+        Buddha.prevThread.interrupt();
+    }//GEN-LAST:event_sliderGStateChanged
 
     private void sliderBStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sliderBStateChanged
         int b = sliderB.getValue();
@@ -394,6 +453,8 @@ public class GUI extends javax.swing.JFrame {
         Buddha.fgColor = new Color(old.getRed(), old.getGreen(), b);
         colorButton.setBackground(Buddha.fgColor);
         Buddha.renderer.setColor(Buddha.fgColor, Buddha.bgColor);
+        Buddha.prevThread.redraw=true;
+        Buddha.prevThread.interrupt();
     }//GEN-LAST:event_sliderBStateChanged
 
     private void clearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearButtonActionPerformed
@@ -413,15 +474,20 @@ public class GUI extends javax.swing.JFrame {
         try {
             Buddha.minIterations = Integer.parseInt(minItField.getText());
         } catch (NumberFormatException ex) {
-            System.out.println("screw you.");
+            System.out.println(minItField.getText()+"is no valid number.");
         }
         try {
             Buddha.maxIterations = Integer.parseInt(maxItField.getText());
         } catch (NumberFormatException ex) {
-            System.out.println("screw you.");
+            System.out.println(maxItField.getText()+"is no valid number.");
         }
-        
-        Buddha.renderer.reInit();
+        try {
+            int res = Integer.parseInt(resolutionField.getText());
+            Buddha.sizex = Buddha.sizey = res;
+        } catch (NumberFormatException ex) {
+            System.out.println(resolutionField.getText()+"is no valid number.");
+        }
+        Buddha.renderer.init(Buddha.sizex, Buddha.sizey);
         updateExposures(0);
     }
     
@@ -434,6 +500,7 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_maxItFieldPropertyChange
 
     private void minItFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_minItFieldActionPerformed
+        
     }//GEN-LAST:event_minItFieldActionPerformed
 
     private void maxItFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maxItFieldActionPerformed
@@ -453,10 +520,20 @@ public class GUI extends javax.swing.JFrame {
         updateExposures(Buddha.renderer.getExposes());
     }//GEN-LAST:event_loadButtonActionPerformed
 
+    private void resolutionFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resolutionFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_resolutionFieldActionPerformed
+
+    private void exportButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportButtonActionPerformed
+        Buddha.exportImage();
+    }//GEN-LAST:event_exportButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private java.awt.Canvas canvas;
     private javax.swing.JButton clearButton;
     private javax.swing.JButton colorButton;
+    private javax.swing.JButton exportButton;
+    private javax.swing.JLabel exportLabel;
     private javax.swing.JLabel exposuresLabel;
     private javax.swing.JToggleButton generateButton;
     private javax.swing.JLabel generateStatus;
@@ -467,6 +544,8 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JTextField jTextField1;
@@ -475,6 +554,7 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JTextField minItField;
     private javax.swing.JToggleButton previewButton;
     private javax.swing.JLabel renderStatus;
+    private javax.swing.JTextField resolutionField;
     private javax.swing.JButton saveButton;
     private javax.swing.JSlider sliderB;
     private javax.swing.JSlider sliderG;
@@ -482,6 +562,7 @@ public class GUI extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     void render() {
+        pack();
         Graphics2D g = (Graphics2D) bufStrat.getDrawGraphics();
         g.setTransform(AffineTransform.getScaleInstance(
                 (double)canvas.getWidth()/Buddha.sizex,
@@ -489,14 +570,23 @@ public class GUI extends javax.swing.JFrame {
         Buddha.renderer.render(g);
         bufStrat.show();
     }
+
+    void stopExporting() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    void startExporting() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
     
     private class UpdateCanvas extends Canvas {
         private static final long serialVersionUID = 1L;
         
         @Override
         public void paint(Graphics g) {
+            Buddha.prevThread.redraw=true;
             Buddha.prevThread.interrupt();
         }
-        
+                
     }
 }

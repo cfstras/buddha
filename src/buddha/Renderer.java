@@ -32,7 +32,7 @@ public interface Renderer {
     long getExposes();
     
     /**
-     * render the current picture
+     * render the current picture to a graphics object
      * disposes the graphics, too.
      * @param image the Graphics element to draw the image to.
      */
