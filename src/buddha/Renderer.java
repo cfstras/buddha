@@ -52,6 +52,9 @@ public interface Renderer {
     //public void updateInfo(String string);
 
     public void expose(int iy, int ix);
+    public void expose(int[] x, int[] y);
+    public void expose(int[] x, int[] y, int num);
+    
     
     public void setColor(Color foreground, Color background);
     

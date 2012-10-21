@@ -58,7 +58,7 @@ public class PNGRenderer implements Renderer {
 
     long numPoints;
 
-    double[][] data;
+    double[] data;
     double maxValue;
     double minValue;
 
@@ -66,7 +66,7 @@ public class PNGRenderer implements Renderer {
     @Override
     public void setPoint(int x, int y, double value) {
         synchronized(dataSync) {
-            data[x][y]=value;
+            data[x+y*width]=value;
             numPoints++;
         }
     }
@@ -75,18 +75,50 @@ public class PNGRenderer implements Renderer {
     @Override
     public void addToPoint(int x, int y, double value) {
         synchronized(dataSync) {
-            data[x][y]+=value;
+            data[x+y*width]+=value;
             numPoints++;
         }
     }
     @Override
     public void expose(int x, int y) {
         synchronized(dataSync) {
-            data[x][y]++;
+            data[x+y*width]++;
             numPoints++;
         }
     }
-
+    
+    @Override
+    public void expose(int[] x, int[] y, int num) {
+        if(x==null && y == null) {
+            System.out.println("error: got empty exposure array");
+            return;
+        }
+        if(x.length!=y.length) {
+            System.out.println("error: exposure array size mismatch");
+            return;
+        }
+        int l = Math.min(x.length,num);
+        synchronized(dataSync) {
+            for(int i = 0;i<l;i++) {
+                data[x[i]+y[i]*width]++;
+            }
+            numPoints += l;
+        }
+    }
+    @Override
+    public void expose(int[] x, int[] y) {
+        if(x==null && y == null) {
+            System.out.println("error: got empty exposure array");
+            return;
+        }
+        if(x.length!=y.length) {
+            System.out.println("error: exposure array size mismatch");
+            return;
+        }
+        expose(x,y,x.length);
+    }
+    
+    
 
     @Override
     public long getExposes() {
@@ -115,7 +147,7 @@ public class PNGRenderer implements Renderer {
         synchronized (dataSync) {
             for (int ix = 0; ix < width; ix ++) {
                 for (int iy = 0; iy < height; iy ++) {
-                    ramp = data[ix ][iy ];
+                    ramp = data[iy+ix*width];
                     //ramp /= aa;
                     ramp = 2 * (ramp - minValue) / (maxValue - minValue);
                     if (ramp > 1f) {
@@ -153,19 +185,15 @@ public class PNGRenderer implements Renderer {
     
     private void findMaxValue() {
         maxValue=0;
-        for(double[] dx: data) {
-            for(double dxy:dx) {
-                if(dxy>maxValue) {
-                    maxValue=dxy;
-                }
+        for(double d: data) {
+            if(d>maxValue) {
+                maxValue=d;
             }
         }
         minValue=maxValue;
-        for(double[] dx: data) {
-            for(double dxy:dx) {
-                if(dxy<minValue) {
-                    minValue=dxy;
-                }
+        for(double d: data) {
+            if(d<minValue) {
+                minValue=d;
             }
         }
         if(maxValue >= Double.MAX_VALUE*0.5) {
@@ -185,7 +213,7 @@ public class PNGRenderer implements Renderer {
         synchronized (dataSync) {
             data= null;
             //Thread.currentThread().setPriority((Thread.MIN_PRIORITY+Thread.NORM_PRIORITY)/2);
-            data=new double[width][height];
+            data=new double[width*height];
         }
         //System.gc(); //TODO maybe add some gc
         numPoints=0;
@@ -458,7 +486,7 @@ public class PNGRenderer implements Renderer {
             jpg.setValue(jpgOffset);
             for(int ix=0;ix<width;ix++) {
                 for(int iy=0;iy<height;iy++) {
-                    dos.writeDouble(data[ix][iy]);
+                    dos.writeDouble(data[ix+iy*width]);
                 }
                 jpg.setValue(jpgOffset+ix);
             }
@@ -536,20 +564,24 @@ public class PNGRenderer implements Renderer {
 
             Buddha.minIterations=dos.readInt();
             Buddha.maxIterations=dos.readInt();
+            
             jpg.setMinimum(0);
             int jpgOffset=(int)(0.2f*width);
             jpg.setMaximum(width+jpgOffset);
-
-            jpg.setValue(0);
-            jpg.setIndeterminate(false);
-            reInit();
-            jpg.setValue(jpgOffset);
-            numPoints=dos.readLong();
-            for(int ix=0;ix<width;ix++) {
-                for(int iy=0;iy<height;iy++) {
-                    data[ix][iy]=dos.readDouble();
+            
+            synchronized(dataSync) {
+            
+                jpg.setValue(0);
+                jpg.setIndeterminate(false);
+                reInit();
+                jpg.setValue(jpgOffset);
+                numPoints=dos.readLong();
+                for(int ix=0;ix<width;ix++) {
+                    for(int iy=0;iy<height;iy++) {
+                        data[ix+iy*width]=dos.readDouble();
+                    }
+                    jpg.setValue(jpgOffset+ix);
                 }
-                jpg.setValue(jpgOffset+ix);
             }
             if(!dos.readUTF().equals("End of Save file.")) {
                 error="Not a Buddhabrot Savefile / corrupted file.";
@@ -558,6 +590,7 @@ public class PNGRenderer implements Renderer {
             zos.closeEntry();
             //updateInfo("buddha-" + Buddha.maxIterations + "-" + Buddha.minIterations + "-" + numPoints / 1000000 + "M");
             JOptionPane.showMessageDialog(f, "File "+db.getName()+" loaded!", "Yay!", JOptionPane.INFORMATION_MESSAGE);
+            Buddha.gui.fetchProperties();
         } catch(EOFException ex) {
             error="Not a Buddhabrot Savefile / corrupted file.";
         } catch (IOException ex) {

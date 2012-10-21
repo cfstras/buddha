@@ -12,10 +12,15 @@ import java.util.Random;
  */
 public class Buddhabrot implements Fractal{
     
+    static int cacheSize = 1024 * 16; // 16kb per thread
+    
     int width;
     int height;
     Renderer renderer;
     double[] xyseq;
+    int[] cacheX;
+    int[] cacheY;
+    int cached;
     int minIterations=0;
     int maxIterations=0;
     long seed;
@@ -32,7 +37,9 @@ public class Buddhabrot implements Fractal{
         this.renderer=renderer;
         this.minIterations=minIterations;
         this.maxIterations=maxIterations;
-        xyseq =new double[maxIterations*2];
+        xyseq=new double[maxIterations*2];
+        cacheX = new int[cacheSize];
+        cacheY = new int[cacheSize];
     }
     
     @Override
@@ -45,6 +52,10 @@ public class Buddhabrot implements Fractal{
             y = r.nextDouble()*6f -3f; //range -1.5, 1.5 
 
             iterate(x, y);
+        }
+        if(cached>0) {
+            renderer.expose(cacheX, cacheY, cached);
+            cached=0;
         }
         
     }
@@ -82,9 +93,14 @@ public class Buddhabrot implements Fractal{
                     ix=(int)( 0.3 * width * (xyseq[i*2]+0.5) + width/2);
                     iy=(int)( 0.3 * height * xyseq[i*2+1] + height/2);
                     if (ix > 0 && iy > 0 && ix < width && iy < height) {
-                        //TODO cache these per thread!!
-                        renderer.expose(iy, ix);
+                        cacheX[cached] = ix;
+                        cacheY[cached] = iy;
+                        cached++;
                     }
+                }
+                if(cached>=cacheSize) {
+                    renderer.expose(cacheX, cacheY);
+                    cached=0;
                 }
                 if(Thread.interrupted())
                     return;
