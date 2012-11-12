@@ -80,8 +80,9 @@ public class Buddhabrot implements Fractal{
                 escapes = true;
                 break;
             }
-            if(Thread.interrupted())
+            if(Thread.interrupted()) {
                 return;
+            }
             x = xnew;
             y = ynew;
         }
@@ -102,8 +103,9 @@ public class Buddhabrot implements Fractal{
                     renderer.expose(cacheX, cacheY);
                     cached=0;
                 }
-                if(Thread.interrupted())
+                if(Thread.interrupted()) {
                     return;
+                }
             }
         }
         
@@ -119,6 +121,11 @@ public class Buddhabrot implements Fractal{
     public void set(int minIterations, int maxIterations) {
         this.minIterations=minIterations;
         this.maxIterations=maxIterations;
+    }
+
+    @Override
+    public void deInit() {
+        //nothing to do
     }
     
 }

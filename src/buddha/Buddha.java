@@ -28,7 +28,7 @@ public class Buddha {
     static int minIterations=5;
     static int numToRun=1024*1024*512;
     
-    static int maxThreads=8;
+    static int maxThreads=32;
     static int numThreads;
     
     static Color fgColor;
@@ -180,6 +180,7 @@ public class Buddha {
                 f.generateData(numToRun/maxIterations);
                 gui.updateExposures(renderer.getExposes());
             }
+            f.deInit();
         }
     }
     static class PreviewThread extends Thread {
