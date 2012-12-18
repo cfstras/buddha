@@ -29,17 +29,31 @@ public class Buddhabrot implements Fractal{
     
     @Override
     public void init(int sizex, int sizey,int minIterations,int maxIterations, Renderer renderer, long seed) {
-        System.out.println(Thread.currentThread().getName()+" seed: "+seed);
-        this.seed = seed;
-        r = new Random(seed);
-        width=sizey;
-        height=sizex; //the mixup is intentionally, to rotate it.
-        this.renderer=renderer;
-        this.minIterations=minIterations;
-        this.maxIterations=maxIterations;
-        xyseq=new double[maxIterations*2];
-        cacheX = new int[cacheSize];
-        cacheY = new int[cacheSize];
+        initNoTryAgain(sizex, sizey, minIterations, maxIterations, renderer, seed, true);
+    }
+
+    private void initNoTryAgain(int sizex, int sizey,int minIterations,int maxIterations, Renderer renderer, long seed, boolean tryagain) {
+        try {
+            System.out.println(Thread.currentThread().getName()+" seed: "+seed);
+            this.seed = seed;
+            r = new Random(seed);
+            width=sizey;
+            height=sizex; //the mixup is intentionally, to rotate it.
+            this.renderer=renderer;
+            this.minIterations=minIterations;
+            this.maxIterations=maxIterations;
+            xyseq=new double[maxIterations*2];
+            cacheX = new int[cacheSize];
+            cacheY = new int[cacheSize];
+        } catch (OutOfMemoryError e) {
+            if(tryagain) {
+                System.out.println("OOM, trying again...");
+                System.gc();
+                initNoTryAgain(sizex, sizey, minIterations, maxIterations, renderer, seed, false);
+            } else {
+                System.out.println("Out of Memory!");
+            }
+        }
     }
     
     @Override

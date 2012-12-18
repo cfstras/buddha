@@ -7,6 +7,8 @@ package buddha;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
+import javax.swing.JDialog;
+import javax.swing.JProgressBar;
 
 /**
  *
@@ -25,6 +27,7 @@ public class GUI extends javax.swing.JFrame {
         setVisible(true);
         
         canvas.createBufferStrategy(2);
+        canvas.setIgnoreRepaint(true);
         bufStrat = canvas.getBufferStrategy();
         previewButton.setSelected(true);
         previewButtonActionPerformed(null);
@@ -506,15 +509,30 @@ public class GUI extends javax.swing.JFrame {
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         generateButton.setSelected(false);
         generateButtonActionPerformed(null);
-        Buddha.renderer.save();
-        
+        new Thread() {
+            @Override public void run() {
+                JDialog pgf=new JDialog(GUI.this,"saving to file...");
+                JProgressBar jpg=new JProgressBar();
+                jpg.setBounds(0,0,300,70);
+                pgf.add(jpg);
+                pgf.pack();
+                pgf.setLocationRelativeTo(Buddha.gui);
+                pgf.setVisible(true);
+                Buddha.renderer.save(jpg);
+                pgf.dispose();
+            }
+        }.start();        
     }//GEN-LAST:event_saveButtonActionPerformed
 
     private void loadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadButtonActionPerformed
         generateButton.setSelected(false);
         generateButtonActionPerformed(null);
-        Buddha.renderer.load();
-        updateExposures(Buddha.renderer.getExposes());
+        new Thread() {
+            @Override public void run() {
+                Buddha.renderer.load();
+                updateExposures(Buddha.renderer.getExposes());
+            }
+        }.start();
     }//GEN-LAST:event_loadButtonActionPerformed
 
     private void resolutionFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resolutionFieldActionPerformed

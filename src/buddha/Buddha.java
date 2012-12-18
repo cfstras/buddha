@@ -119,10 +119,10 @@ public class Buddha {
         gui.startExporting();
         
         System.out.println("exporting image");
-	//infoLabel.setText("buddha-" + Buddha.maxIterations + "-" + Buddha.minIterations + "-" + numPoints / 1000000 + "M  writing          ");
-	gui.setExportStatus("generating...");
-	BufferedImage img = new BufferedImage(sizex, sizey, BufferedImage.TYPE_INT_ARGB);
-	Graphics2D g = img.createGraphics();
+        //infoLabel.setText("buddha-" + Buddha.maxIterations + "-" + Buddha.minIterations + "-" + numPoints / 1000000 + "M  writing          ");
+        gui.setExportStatus("generating...");
+        BufferedImage img = new BufferedImage(sizex, sizey, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
         renderer.render(g);
         img.flush();
         g.dispose();
@@ -157,10 +157,8 @@ public class Buddha {
                 JOptionPane.showMessageDialog(gui,"Error opening image: "+ex, "Error opening image", JOptionPane.ERROR_MESSAGE);
             }
         }
-        
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException ex) {}
+        System.gc();
+
         gui.setExportStatus("          ");
     }
     
@@ -200,7 +198,7 @@ public class Buddha {
                 if (threadsRunning || redraw) {
                     redraw=false;
                     gui.render();
-                    gui.setRenderStatus("on: "+tick[i%tick.length]);
+                    gui.setRenderStatus(tick[i%tick.length]+" on");
                     i++;
                 }
             }

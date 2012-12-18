@@ -6,6 +6,7 @@ package buddha;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import javax.swing.JProgressBar;
 
 /**
  *
@@ -58,6 +59,6 @@ public interface Renderer {
     
     public void setColor(Color foreground, Color background);
     
-    void save();
+    void save(JProgressBar jpg);
     void load();
 }
