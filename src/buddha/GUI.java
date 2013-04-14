@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package buddha;
 
 import java.awt.*;
@@ -521,7 +517,7 @@ public class GUI extends javax.swing.JFrame {
                 Buddha.renderer.save(jpg);
                 pgf.dispose();
             }
-        }.start();        
+        }.start();
     }//GEN-LAST:event_saveButtonActionPerformed
 
     private void loadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadButtonActionPerformed
