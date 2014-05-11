@@ -1,4 +1,3 @@
-
 [![20 Iterations Max, 1 Iterations Min][20-1-t]][20-1]
 [![35 Iterations Max, 10 Iterations Min][35-10-t]][35-10]
 [![170 Iterations Max, 5 Iterations Min][170-5-t]][170-5]
@@ -9,7 +8,6 @@
 [170-5-t]: http://cfs.q1cc.net/temp/buddha/buddha-170-thumb.jpg "170 Iterations Max, 5 Iterations Min"
 [200-5-t]: http://cfs.q1cc.net/temp/buddha/buddha200-thumb.jpg "200 Iterations Max, 5 Iterations Min"
 
----
 
 Buddha
 ------
