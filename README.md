@@ -8,15 +8,14 @@
 [170-5-t]: examples/buddha-170-5-3049M-thumb.png "170 Iterations Max, 5 Iterations Min"
 [200-5-t]: examples/buddha-200-5-4170M-thumb.png "200 Iterations Max, 5 Iterations Min"
 
+# Buddha
 
-Buddha
-------
 
 A small Buddhabrot-renderer in java.
 
 Builds with ant or Netbeans.
 
-###Pics
+## Pics
 
 [20 Iterations Max, 1 Iterations Min][20-1]
 
@@ -33,8 +32,8 @@ Builds with ant or Netbeans.
 
 ![1M Iterations max, 1 Iterations Min][1M-1]
 
-[1M-1]: http://cfs.q1cc.net/temp/buddha/buddha-custom-1M-1-5M.png "1M Iterations max, 1 Iterations Min"
+[1M-1]: examples/buddha-1M-1-4M-1024px.png "1M Iterations max, 1 Iterations Min"
 
-###License
+### License
 
 GNU GPLv3, http://www.gnu.org/licenses/gpl-3.0
